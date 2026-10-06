@@ -55,7 +55,7 @@ public class AppointmentPanel extends JPanel {
                 BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(222, 226, 230)),
                 new EmptyBorder(14, 20, 14, 20)));
 
-        JLabel pageTitle = new JLabel("📅  Appointment Management");
+        JLabel pageTitle = new JLabel("◷  Appointment Management");
         pageTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         pageTitle.setForeground(new Color(33, 37, 41));
 
