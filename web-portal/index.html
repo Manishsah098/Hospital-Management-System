@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SmartCare Hospital Patient Portal - Book your appointment online from the comfort of your home. Reduce waiting time, choose your doctor, pick a time slot and get a digital ticket instantly.">
+    <title>SmartCare Hospital – Patient Booking Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- ====================== NAVBAR ====================== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="nav-logo" id="nav-logo-link">
+                <div class="logo-icon">✚</div>
+                <div class="logo-text">
+                    <span class="logo-primary">SmartCare</span>
+                    <span class="logo-sub">Hospital</span>
+                </div>
+            </a>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#home" class="nav-link active" data-section="home">Home</a></li>
+                <li><a href="#departments" class="nav-link" data-section="departments">Departments</a></li>
+                <li><a href="#doctors" class="nav-link" data-section="doctors">Doctors</a></li>
+                <li><a href="#book" class="nav-link" data-section="book">Book Ticket</a></li>
+                <li><a href="#track" class="nav-link" data-section="track">Track Appointment</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="#book" class="btn-book-nav" id="btn-book-nav">
+                    <span>🎫</span> Book Now
+                </a>
+                <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ====================== HERO SECTION ====================== -->
+    <section class="hero" id="home">
+        <div class="hero-bg-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="floating-cross cross-1">✚</div>
+            <div class="floating-cross cross-2">✚</div>
+            <div class="floating-cross cross-3">✚</div>
+        </div>
+        <div class="hero-container">
+            <div class="hero-badge">
+                <span class="pulse-dot"></span>
+                Live Booking Available &bull; No Queue at Hospital
+            </div>
+            <h1 class="hero-title">
+                Book Your Hospital<br>
+                <span class="gradient-text">Appointment Online</span>
+            </h1>
+            <p class="hero-subtitle">
+                Skip the hospital queues. Choose your specialist, pick a convenient time slot,<br>
+                and receive a digital ticket instantly &mdash; from home.
+            </p>
+            <div class="hero-actions">
+                <a href="#book" class="btn-primary" id="hero-book-btn">
+                    <span>🎫</span> Book Appointment
+                </a>
+                <a href="#track" class="btn-secondary" id="hero-track-btn">
+                    <span>🔍</span> Track My Ticket
+                </a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="4800">0</div>
+                    <div class="stat-label">Patients Served</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="12">0</div>
+                    <div class="stat-label">Departments</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="38">0</div>
+                    <div class="stat-label">Specialists</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="98">0</div>
+                    <div class="stat-label">% Satisfaction</div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll-hint">
+            <div class="scroll-arrow">↓</div>
+            <span>Scroll to explore</span>
+        </div>
+    </section>
+
+    <!-- ====================== HOW IT WORKS ====================== -->
+    <section class="how-it-works" id="how">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Simple Process</div>
+                <h2 class="section-title">Book in 4 Easy Steps</h2>
+                <p class="section-subtitle">Get your appointment confirmed in under 3 minutes</p>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card" data-step="1">
+                    <div class="step-number">01</div>
+                    <div class="step-icon">🏥</div>
+                    <h3 class="step-title">Choose Department</h3>
+                    <p class="step-desc">Select the medical department that matches your health concern from our specialised units.</p>
+                </div>
+                <div class="step-card" data-step="2">
+                    <div class="step-number">02</div>
+                    <div class="step-icon">👨‍⚕️</div>
+                    <h3 class="step-title">Select Doctor</h3>
+                    <p class="step-desc">Browse available specialists, their qualifications, experience, and consultation fees.</p>
+                </div>
+                <div class="step-card" data-step="3">
+                    <div class="step-number">03</div>
+                    <div class="step-icon">📅</div>
+                    <h3 class="step-title">Pick a Time Slot</h3>
+                    <p class="step-desc">View real-time available slots and choose a date and time that works best for you.</p>
+                </div>
+                <div class="step-card" data-step="4">
+                    <div class="step-number">04</div>
+                    <div class="step-icon">🎫</div>
+                    <h3 class="step-title">Get Your Ticket</h3>
+                    <p class="step-desc">Receive a digital appointment ticket with token number. Show it at the hospital counter.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================== DEPARTMENTS ====================== -->
+    <section class="departments" id="departments">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Medical Units</div>
+                <h2 class="section-title">Our Departments</h2>
+                <p class="section-subtitle">World-class care across all major specialties</p>
+            </div>
+            <div class="departments-grid" id="departments-grid"></div>
+        </div>
+    </section>
+
+    <!-- ====================== DOCTORS ====================== -->
+    <section class="doctors-section" id="doctors">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Our Team</div>
+                <h2 class="section-title">Meet Our Specialists</h2>
+                <p class="section-subtitle">Expert doctors committed to your best health outcomes</p>
+            </div>
+            <div class="doctors-filter" id="doctors-filter">
+                <button class="filter-btn active" data-filter="all">All</button>
+            </div>
+            <div class="doctors-grid" id="doctors-grid"></div>
+        </div>
+    </section>
+
+    <!-- ====================== BOOKING SECTION ====================== -->
+    <section class="booking-section" id="book">
+        <div class="booking-bg-shapes">
+            <div class="bshape bshape-1"></div>
+            <div class="bshape bshape-2"></div>
+        </div>
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag light">Book Online</div>
+                <h2 class="section-title light">Schedule Your Appointment</h2>
+                <p class="section-subtitle light">Fill in the details below to reserve your consultation slot</p>
+            </div>
+            <div class="booking-layout">
+                <div class="booking-form-card" id="booking-form-card">
+                    <div class="step-progress" id="step-progress">
+                        <div class="progress-step active" data-step="1">
+                            <div class="progress-circle">1</div>
+                            <span>Department</span>
+                        </div>
+                        <div class="progress-line"></div>
+                        <div class="progress-step" data-step="2">
+                            <div class="progress-circle">2</div>
+                            <span>Doctor</span>
+                        </div>
+                        <div class="progress-line"></div>
+                        <div class="progress-step" data-step="3">
+                            <div class="progress-circle">3</div>
+                            <span>Date &amp; Time</span>
+                        </div>
+                        <div class="progress-line"></div>
+                        <div class="progress-step" data-step="4">
+                            <div class="progress-circle">4</div>
+                            <span>Your Info</span>
+                        </div>
+                    </div>
+
+                    <!-- STEP 1 -->
+                    <div class="form-step active" id="step-1">
+                        <h3 class="step-form-title">Select Department</h3>
+                        <p class="step-form-subtitle">Choose the medical department for your consultation</p>
+                        <div class="dept-selector-grid" id="dept-selector-grid"></div>
+                        <div class="form-nav">
+                            <div></div>
+                            <button class="btn-next" id="step1-next" onclick="goToStep(2)" disabled>Next: Select Doctor &rarr;</button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2 -->
+                    <div class="form-step" id="step-2">
+                        <h3 class="step-form-title">Choose Your Doctor</h3>
+                        <p class="step-form-subtitle">Select a specialist from the available doctors</p>
+                        <div class="doctor-selector-grid" id="doctor-selector-grid"></div>
+                        <div class="form-nav">
+                            <button class="btn-back" onclick="goToStep(1)">&larr; Back</button>
+                            <button class="btn-next" id="step2-next" onclick="goToStep(3)" disabled>Next: Pick Date &amp; Time &rarr;</button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3 -->
+                    <div class="form-step" id="step-3">
+                        <h3 class="step-form-title">Pick Date &amp; Time Slot</h3>
+                        <p class="step-form-subtitle">Select your preferred appointment date and time</p>
+                        <div class="datetime-layout">
+                            <div class="date-picker-section">
+                                <label class="form-label">Appointment Date</label>
+                                <input type="date" class="date-input" id="appt-date" onchange="loadTimeSlots()">
+                                <div class="date-note">📌 Available from today. Max 30 days in advance.</div>
+                            </div>
+                            <div class="timeslot-section">
+                                <label class="form-label">Available Time Slots</label>
+                                <div class="time-slots-grid" id="time-slots-grid">
+                                    <div class="timeslot-placeholder">Please select a date first</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-nav">
+                            <button class="btn-back" onclick="goToStep(2)">&larr; Back</button>
+                            <button class="btn-next" id="step3-next" onclick="goToStep(4)" disabled>Next: Enter Details &rarr;</button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4 -->
+                    <div class="form-step" id="step-4">
+                        <h3 class="step-form-title">Your Information</h3>
+                        <p class="step-form-subtitle">Enter your personal details for the appointment</p>
+                        <div class="patient-form-grid">
+                            <div class="form-group full-width">
+                                <label class="form-label" for="patient-name">Full Name *</label>
+                                <input type="text" id="patient-name" class="form-input" placeholder="e.g. Rahul Mehta" oninput="validateStep4()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="patient-phone">Phone Number *</label>
+                                <input type="tel" id="patient-phone" class="form-input" placeholder="e.g. 9876543210" maxlength="10" oninput="validateStep4()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="patient-email">Email Address</label>
+                                <input type="email" id="patient-email" class="form-input" placeholder="e.g. rahul@email.com">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="patient-dob">Date of Birth *</label>
+                                <input type="date" id="patient-dob" class="form-input" oninput="validateStep4()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="patient-gender">Gender *</label>
+                                <select id="patient-gender" class="form-input" onchange="validateStep4()">
+                                    <option value="">Select Gender</option>
+                                    <option value="MALE">Male</option>
+                                    <option value="FEMALE">Female</option>
+                                    <option value="OTHER">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label" for="patient-reason">Reason for Visit *</label>
+                                <textarea id="patient-reason" class="form-input form-textarea" placeholder="Briefly describe your symptoms or reason for visit..." rows="3" oninput="validateStep4()"></textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label" for="patient-code">Patient ID (if existing patient)</label>
+                                <input type="text" id="patient-code" class="form-input" placeholder="e.g. PAT-1001 (leave blank if new patient)">
+                            </div>
+                        </div>
+                        <div class="terms-check">
+                            <input type="checkbox" id="terms-checkbox" checked onchange="validateStep4()">
+                            <label for="terms-checkbox">I agree to SmartCare's terms and confirm the details above are accurate.</label>
+                        </div>
+                        <div class="form-nav">
+                            <button class="btn-back" onclick="goToStep(3)">&larr; Back</button>
+                            <button class="btn-confirm" id="step4-confirm" onclick="confirmBooking()">
+                                <span>🎫</span> Confirm Booking
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 5: Ticket -->
+                    <div class="form-step" id="step-5"></div>
+                </div>
+
+                <!-- Summary Sidebar -->
+                <div class="booking-summary" id="booking-summary">
+                    <h3 class="summary-title">📋 Booking Summary</h3>
+                    <div class="summary-items" id="summary-items">
+                        <div class="summary-placeholder">
+                            <div class="placeholder-icon">📋</div>
+                            <p>Your booking details will appear here as you complete each step.</p>
+                        </div>
+                    </div>
+                    <div class="crowd-indicator" id="crowd-indicator">
+                        <div class="crowd-header"><span>🏥</span> Hospital Load Today</div>
+                        <div class="crowd-bar-wrap">
+                            <div class="crowd-bar" id="crowd-bar"></div>
+                        </div>
+                        <div class="crowd-status" id="crowd-status">Calculating...</div>
+                        <p class="crowd-tip">Book online to reduce in-hospital queues.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================== TRACK SECTION ====================== -->
+    <section class="track-section" id="track">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Track Your Visit</div>
+                <h2 class="section-title">Find Your Appointment</h2>
+                <p class="section-subtitle">Enter your token number or phone to view appointment details</p>
+            </div>
+            <div class="track-card">
+                <div class="track-tabs">
+                    <button class="track-tab active" id="tab-token" onclick="switchTrackTab('token')">By Token Number</button>
+                    <button class="track-tab" id="tab-phone" onclick="switchTrackTab('phone')">By Phone Number</button>
+                </div>
+                <div class="track-inputs">
+                    <div class="track-input-group active" id="track-token-group">
+                        <input type="text" id="token-input" class="track-input" placeholder="Enter your token e.g. SC-2024-0042">
+                        <button class="track-btn" onclick="trackAppointment('token')">🔍 Find</button>
+                    </div>
+                    <div class="track-input-group" id="track-phone-group">
+                        <input type="tel" id="phone-input" class="track-input" placeholder="Enter your registered phone number">
+                        <button class="track-btn" onclick="trackAppointment('phone')">🔍 Search</button>
+                    </div>
+                </div>
+                <div class="track-result" id="track-result"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====================== FOOTER ====================== -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <div class="logo-icon">✚</div>
+                    <span>SmartCare Hospital</span>
+                </div>
+                <p class="footer-tagline">Delivering excellence in healthcare with compassion and innovation.</p>
+                <div class="footer-emergency">
+                    <span>🚨 Emergency:</span>
+                    <strong>+91 98765 43210</strong>
+                </div>
+            </div>
+            <div class="footer-links-group">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#departments">Departments</a></li>
+                    <li><a href="#doctors">Our Doctors</a></li>
+                    <li><a href="#book">Book Appointment</a></li>
+                    <li><a href="#track">Track Ticket</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-group">
+                <h4>Departments</h4>
+                <ul>
+                    <li><a href="#book">Cardiology</a></li>
+                    <li><a href="#book">Neurology</a></li>
+                    <li><a href="#book">Orthopedics</a></li>
+                    <li><a href="#book">Pediatrics</a></li>
+                    <li><a href="#book">General Medicine</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-group">
+                <h4>Contact Us</h4>
+                <ul>
+                    <li>📍 SmartCare Health City, Mumbai</li>
+                    <li>📞 +91 98765 43210</li>
+                    <li>📧 care@smartcare.hospital</li>
+                    <li>🕐 OPD: 8 AM &ndash; 8 PM (Mon&ndash;Sat)</li>
+                    <li>🚑 Emergency: 24 &times; 7</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 SmartCare Hospital Management System. All rights reserved.</p>
+            <p>Powered by <strong>SmartCare HMS</strong> &ndash; Reducing hospital queues with digital booking.</p>
+        </div>
+    </footer>
+
+    <!-- Ticket Modal -->
+    <div class="modal-overlay" id="ticket-modal-overlay" onclick="closeTicketModal()">
+        <div class="ticket-modal" id="ticket-modal" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeTicketModal()">&#10005;</button>
+            <div id="ticket-modal-content"></div>
+            <div class="ticket-actions">
+                <button class="btn-print" onclick="printTicket()">🖨️ Print Ticket</button>
+                <button class="btn-close-modal" onclick="closeTicketModal()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
