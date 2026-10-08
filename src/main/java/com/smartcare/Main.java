@@ -47,6 +47,21 @@ public class Main {
             }
         }).start();
 
+        // 3b. Start embedded Patient Web Booking Portal Server (Port 8080)
+        new Thread(() -> {
+            try {
+                java.io.File dir = new java.io.File("web-portal");
+                if (!dir.exists()) {
+                    dir = new java.io.File("..", "web-portal");
+                }
+                com.smartcare.web.WebPortalServer portalServer = new com.smartcare.web.WebPortalServer(dir.getAbsolutePath());
+                portalServer.start();
+                LOGGER.info("SmartCare Patient Web Booking Portal started at http://localhost:8080");
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, "Failed to start Patient Portal server: " + e.getMessage());
+            }
+        }, "WebPortalServer-Thread").start();
+
         // 4. Launch Swing GUI on the Event Dispatch Thread (EDT)
         SwingUtilities.invokeLater(() -> {
             LoginFrame loginFrame = new LoginFrame();
