@@ -1,6 +1,9 @@
 package com.smartcare.ui;
-
+ 
+import com.smartcare.controller.AppointmentController;
 import com.smartcare.controller.DoctorController;
+import com.smartcare.enums.AppointmentStatus;
+import com.smartcare.model.Appointment;
 import com.smartcare.model.Department;
 import com.smartcare.model.Doctor;
 import com.smartcare.ui.dialog.DoctorDialog;
@@ -9,11 +12,16 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Modern Java Swing Panel for Doctor & Medical Staff Management.
@@ -48,7 +56,7 @@ public class DoctorPanel extends JPanel {
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         titlePanel.setOpaque(false);
 
-        JLabel titleLbl = new JLabel("🩺 Doctor Management");
+        JLabel titleLbl = new JLabel("✚  Doctor & Specialist Management");
         titleLbl.setFont(new Font("Segoe UI", Font.BOLD, 22));
         titleLbl.setForeground(new Color(33, 37, 41));
 
@@ -66,11 +74,13 @@ public class DoctorPanel extends JPanel {
         actionPanel.setOpaque(false);
 
         JButton addBtn = createActionButton("➕ Add Doctor", new Color(25, 135, 84), e -> openAddDoctorDialog());
+        JButton checkupBtn = createActionButton("📋 Patients for Checkup", new Color(13, 148, 136), e -> viewDoctorPatients());
         JButton editBtn = createActionButton("✏ Edit Profile", new Color(108, 117, 125), e -> openEditDoctorDialog());
         JButton viewBtn = createActionButton("👁 View Details", new Color(13, 110, 253), e -> viewDoctorCard());
         JButton deactivateBtn = createActionButton("🚫 Deactivate", new Color(220, 53, 69), e -> deactivateDoctor());
 
         actionPanel.add(addBtn);
+        actionPanel.add(checkupBtn);
         actionPanel.add(editBtn);
         actionPanel.add(viewBtn);
         actionPanel.add(deactivateBtn);
@@ -138,15 +148,37 @@ public class DoctorPanel extends JPanel {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         doctorTable.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
-        doctorTable.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
         doctorTable.getColumnModel().getColumn(5).setCellRenderer(centerRenderer);
         doctorTable.getColumnModel().getColumn(6).setCellRenderer(centerRenderer);
+        doctorTable.getColumnModel().getColumn(7).setCellRenderer(centerRenderer);
+        doctorTable.getColumnModel().getColumn(9).setCellRenderer(centerRenderer);
+
+        // Patients for Checkup badge renderer (Column 4)
+        doctorTable.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object val, boolean sel, boolean foc, int r, int c) {
+                super.getTableCellRendererComponent(t, val, sel, foc, r, c);
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setFont(new Font("Segoe UI", Font.BOLD, 12));
+                String text = val != null ? val.toString() : "0 Patients";
+                if (!sel) {
+                    if (text.contains("Queued") || text.contains("Waiting")) {
+                        setForeground(new Color(13, 148, 136));
+                        setBackground(new Color(240, 253, 250));
+                    } else {
+                        setForeground(new Color(100, 116, 139));
+                        setBackground(Color.WHITE);
+                    }
+                }
+                return this;
+            }
+        });
 
         doctorTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    viewDoctorCard();
+                    viewDoctorPatients();
                 }
             }
         });
@@ -180,16 +212,25 @@ public class DoctorPanel extends JPanel {
 
     public void loadDoctorData() {
         SwingWorker<List<Doctor>, Void> worker = new SwingWorker<>() {
+            private Map<Integer, Long> checkupCounts = new HashMap<>();
+
             @Override
             protected List<Doctor> doInBackground() {
-                return doctorController.getAllDoctors();
+                List<Doctor> doctors = doctorController.getAllDoctors();
+                try {
+                    List<Appointment> allAppts = new AppointmentController().getAllAppointments();
+                    checkupCounts = allAppts.stream()
+                            .filter(a -> a.getStatus() != AppointmentStatus.CANCELLED)
+                            .collect(Collectors.groupingBy(Appointment::getDoctorId, Collectors.counting()));
+                } catch (Exception ignored) {}
+                return doctors;
             }
 
             @Override
             protected void done() {
                 try {
                     List<Doctor> doctors = get();
-                    tableModel.setDoctors(doctors);
+                    tableModel.setDoctors(doctors, checkupCounts);
                     countBadge.setText(" " + doctors.size() + " Doctors ");
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(DoctorPanel.this, "Failed to load doctors: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -207,16 +248,25 @@ public class DoctorPanel extends JPanel {
         }
 
         SwingWorker<List<Doctor>, Void> worker = new SwingWorker<>() {
+            private Map<Integer, Long> checkupCounts = new HashMap<>();
+
             @Override
             protected List<Doctor> doInBackground() {
-                return doctorController.searchDoctors(keyword);
+                List<Doctor> doctors = doctorController.searchDoctors(keyword);
+                try {
+                    List<Appointment> allAppts = new AppointmentController().getAllAppointments();
+                    checkupCounts = allAppts.stream()
+                            .filter(a -> a.getStatus() != AppointmentStatus.CANCELLED)
+                            .collect(Collectors.groupingBy(Appointment::getDoctorId, Collectors.counting()));
+                } catch (Exception ignored) {}
+                return doctors;
             }
 
             @Override
             protected void done() {
                 try {
                     List<Doctor> results = get();
-                    tableModel.setDoctors(results);
+                    tableModel.setDoctors(results, checkupCounts);
                     countBadge.setText(" " + results.size() + " Found ");
                 } catch (Exception e) {
                     JOptionPane.showMessageDialog(DoctorPanel.this, "Search error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -240,6 +290,9 @@ public class DoctorPanel extends JPanel {
         dialog.setVisible(true);
         if (dialog.isSaved()) {
             loadDoctorData();
+            if (parentFrame instanceof DashboardFrame df) {
+                df.loadDashboardMetrics();
+            }
         }
     }
 
@@ -254,7 +307,175 @@ public class DoctorPanel extends JPanel {
         dialog.setVisible(true);
         if (dialog.isSaved()) {
             loadDoctorData();
+            if (parentFrame instanceof DashboardFrame df) {
+                df.loadDashboardMetrics();
+            }
         }
+    }
+
+    public void viewDoctorPatients() {
+        int selectedRow = doctorTable.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a doctor to view their registered patients for checkup.",
+                    "Select Doctor", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        Doctor doctor = tableModel.getDoctorAt(selectedRow);
+
+        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this),
+                "Checkup Patients — Dr. " + doctor.getFullName(), Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.setSize(900, 560);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+
+        // Top info card
+        JPanel top = new JPanel(new BorderLayout());
+        top.setBackground(new Color(15, 23, 42)); // Slate Navy
+        top.setBorder(new EmptyBorder(16, 20, 16, 20));
+
+        JLabel title = new JLabel("👨‍⚕️  " + doctor.getFullName() + "  —  Patient Checkup Queue");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 17));
+        title.setForeground(Color.WHITE);
+
+        JLabel sub = new JLabel(doctor.getSpecialization() + "  •  Department: "
+                + (doctor.getDepartmentName() != null ? doctor.getDepartmentName() : "General Medicine")
+                + "  •  Fee: ₹" + doctor.getConsultationFee()
+                + "  •  Duty: " + doctor.getAvailableDays());
+        sub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        sub.setForeground(new Color(148, 163, 184));
+
+        JPanel titleBox = new JPanel(new GridLayout(2, 1, 0, 4));
+        titleBox.setOpaque(false);
+        titleBox.add(title);
+        titleBox.add(sub);
+        top.add(titleBox, BorderLayout.CENTER);
+
+        // Fetch appointments for this doctor
+        AppointmentController apptCtrl = new AppointmentController();
+        List<Appointment> list = apptCtrl.getAppointmentsByDoctor(doctor.getDoctorId());
+
+        JLabel countBadgeLbl = new JLabel(" " + list.size() + " Patient(s) Booked ");
+        countBadgeLbl.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        countBadgeLbl.setForeground(new Color(45, 212, 191));
+        countBadgeLbl.setBackground(new Color(15, 118, 110, 80));
+        countBadgeLbl.setOpaque(true);
+        countBadgeLbl.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
+        top.add(countBadgeLbl, BorderLayout.EAST);
+
+        // Table
+        String[] cols = {"#", "Ticket / Token #", "Patient Name", "UHID Code", "Phone", "Date", "Time", "Reason / Symptoms", "Status"};
+        DefaultTableModel model = new DefaultTableModel(cols, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd MMM yyyy");
+        DateTimeFormatter ttf = DateTimeFormatter.ofPattern("hh:mm a");
+
+        for (Appointment a : list) {
+            model.addRow(new Object[]{
+                    a.getAppointmentId(),
+                    a.getTokenNumber(),
+                    a.getPatientName() != null ? a.getPatientName() : "Patient #" + a.getPatientId(),
+                    a.getPatientCode() != null ? a.getPatientCode() : "PAT-" + a.getPatientId(),
+                    a.getPatientPhone() != null && !a.getPatientPhone().isEmpty() ? a.getPatientPhone() : "On file",
+                    a.getAppointmentDate() != null ? a.getAppointmentDate().format(dtf) : "-",
+                    a.getAppointmentTime() != null ? a.getAppointmentTime().format(ttf) : "-",
+                    a.getReasonForVisit() != null ? a.getReasonForVisit() : "-",
+                    a.getStatus() != null ? a.getStatus().name() : "SCHEDULED"
+            });
+        }
+
+        JTable table = new JTable(model);
+        table.setRowHeight(30);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        table.getTableHeader().setBackground(new Color(241, 245, 249));
+
+        // Center renderers
+        DefaultTableCellRenderer cr = new DefaultTableCellRenderer();
+        cr.setHorizontalAlignment(JLabel.CENTER);
+        table.getColumnModel().getColumn(0).setCellRenderer(cr);
+        table.getColumnModel().getColumn(3).setCellRenderer(cr);
+        table.getColumnModel().getColumn(5).setCellRenderer(cr);
+        table.getColumnModel().getColumn(6).setCellRenderer(cr);
+        table.getColumnModel().getColumn(8).setCellRenderer(cr);
+
+        // Ticket column styling
+        table.getColumnModel().getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable t, Object val, boolean sel, boolean foc, int r, int c) {
+                super.getTableCellRendererComponent(t, val, sel, foc, r, c);
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setFont(new Font("Consolas", Font.BOLD, 12));
+                if (!sel) setForeground(new Color(13, 148, 136));
+                return this;
+            }
+        });
+
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // Bottom actions
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 12));
+        bottom.setBackground(new Color(248, 249, 250));
+        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(226, 232, 240)));
+
+        JButton completeBtn = new JButton("✓ Mark Checkup Complete");
+        completeBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        completeBtn.setBackground(new Color(25, 135, 84));
+        completeBtn.setForeground(Color.WHITE);
+        completeBtn.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(dialog, "Select a patient appointment first.", "Select Row", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int apptId = (int) model.getValueAt(row, 0);
+            apptCtrl.updateStatus(apptId, AppointmentStatus.COMPLETED);
+            model.setValueAt("COMPLETED", row, 8);
+            loadDoctorData();
+            JOptionPane.showMessageDialog(dialog, "Checkup marked as COMPLETED!", "Updated", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        JButton viewTicketBtn = new JButton("🎫 View Full Ticket Slip");
+        viewTicketBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        viewTicketBtn.setBackground(new Color(13, 148, 136));
+        viewTicketBtn.setForeground(Color.WHITE);
+        viewTicketBtn.addActionListener(e -> {
+            int row = table.getSelectedRow();
+            if (row < 0) {
+                JOptionPane.showMessageDialog(dialog, "Select a patient appointment first.", "Select Row", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int apptId = (int) model.getValueAt(row, 0);
+            Appointment appt = list.stream().filter(a -> a.getAppointmentId() == apptId).findFirst().orElse(null);
+            if (appt != null) {
+                new AppointmentPanel(parentFrame instanceof DashboardFrame df ? df : null).showTicketDetailsDialog(appt);
+            }
+        });
+
+        JButton closeBtn = new JButton("Close");
+        closeBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        closeBtn.addActionListener(e -> dialog.dispose());
+
+        bottom.add(completeBtn);
+        bottom.add(viewTicketBtn);
+        bottom.add(closeBtn);
+
+        dialog.add(top, BorderLayout.NORTH);
+        if (list.isEmpty()) {
+            JPanel emptyPanel = new JPanel(new GridBagLayout());
+            emptyPanel.setBackground(Color.WHITE);
+            JLabel emptyLbl = new JLabel("<html><center><div style='font-size:24px;'>🩺</div><br><b>No registered patients for checkup with Dr. "
+                    + doctor.getFullName() + " right now.</b><br><br><span style='color:#64748b;'>Patients booked via the Patient Booking Portal or Reception will appear here automatically.</span></center></html>");
+            emptyLbl.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            emptyPanel.add(emptyLbl);
+            dialog.add(emptyPanel, BorderLayout.CENTER);
+        } else {
+            dialog.add(scroll, BorderLayout.CENTER);
+        }
+        dialog.add(bottom, BorderLayout.SOUTH);
+        dialog.setVisible(true);
     }
 
     private void viewDoctorCard() {
@@ -265,10 +486,26 @@ public class DoctorPanel extends JPanel {
         }
         Doctor d = tableModel.getDoctorAt(selectedRow);
 
+        // Fetch patients waiting for checkup
+        List<Appointment> appts = new AppointmentController().getAppointmentsByDoctor(d.getDoctorId());
+        StringBuilder patientsSection = new StringBuilder();
+        if (appts.isEmpty()) {
+            patientsSection.append("   (No patients currently waiting for checkup)\n");
+        } else {
+            for (Appointment a : appts) {
+                patientsSection.append(String.format("   • %-20s | Ticket: %-14s | %s %s | Status: %s\n",
+                        a.getPatientName() != null ? a.getPatientName() : "Patient #" + a.getPatientId(),
+                        a.getTokenNumber(),
+                        a.getAppointmentDate() != null ? a.getAppointmentDate().toString() : "",
+                        a.getAppointmentTime() != null ? a.getAppointmentTime().toString() : "",
+                        a.getStatus() != null ? a.getStatus().name() : "SCHEDULED"));
+            }
+        }
+
         String message = String.format(
-                "═══════════════════════════════════════════════\n" +
-                "               DOCTOR PROFILE CARD             \n" +
-                "═══════════════════════════════════════════════\n" +
+                "═══════════════════════════════════════════════════════════════════\n" +
+                "                    DOCTOR PROFILE & CHECKUP CARD                 \n" +
+                "═══════════════════════════════════════════════════════════════════\n" +
                 "Doctor Name       : %s\n" +
                 "Specialization    : %s\n" +
                 "Department        : %s\n" +
@@ -280,7 +517,10 @@ public class DoctorPanel extends JPanel {
                 "Contact Phone     : %s\n" +
                 "Official Email    : %s\n" +
                 "Status            : %s\n" +
-                "═══════════════════════════════════════════════",
+                "═══════════════════════════════════════════════════════════════════\n" +
+                "REGISTERED PATIENTS CURRENTLY IN CHECKUP QUEUE (%d):\n" +
+                "%s" +
+                "═══════════════════════════════════════════════════════════════════",
                 d.getFullName(),
                 d.getSpecialization(),
                 d.getDepartmentName() != null ? d.getDepartmentName() : "General Medicine",
@@ -291,11 +531,13 @@ public class DoctorPanel extends JPanel {
                 d.getAvailableDays(),
                 d.getPhone(),
                 d.getEmail(),
-                d.isAvailable() ? "AVAILABLE / ON DUTY" : "UNAVAILABLE"
+                d.isAvailable() ? "AVAILABLE / ON DUTY" : "UNAVAILABLE",
+                appts.size(),
+                patientsSection.toString()
         );
 
         JTextArea area = new JTextArea(message);
-        area.setFont(new Font("Consolas", Font.PLAIN, 13));
+        area.setFont(new Font("Consolas", Font.PLAIN, 12));
         area.setEditable(false);
         area.setBackground(new Color(248, 249, 250));
 
@@ -330,12 +572,18 @@ public class DoctorPanel extends JPanel {
     }
 
     private static class DoctorTableModel extends AbstractTableModel {
-        private final String[] columns = {"ID", "Doctor Name", "Specialization", "Department", "Fee (₹)", "Experience", "Duty Days", "Phone", "Status"};
+        private final String[] columns = {"ID", "Doctor Name", "Specialization", "Department", "Patients for Checkup", "Fee (₹)", "Experience", "Duty Days", "Phone", "Status"};
         private List<Doctor> doctors = new ArrayList<>();
+        private Map<Integer, Long> checkupCounts = new HashMap<>();
+
+        public void setDoctors(List<Doctor> doctors, Map<Integer, Long> checkupCounts) {
+            this.doctors = doctors != null ? doctors : new ArrayList<>();
+            this.checkupCounts = checkupCounts != null ? checkupCounts : new HashMap<>();
+            fireTableDataChanged();
+        }
 
         public void setDoctors(List<Doctor> doctors) {
-            this.doctors = doctors != null ? doctors : new ArrayList<>();
-            fireTableDataChanged();
+            setDoctors(doctors, new HashMap<>());
         }
 
         public Doctor getDoctorAt(int row) {
@@ -365,11 +613,15 @@ public class DoctorPanel extends JPanel {
                 case 1 -> d.getFullName();
                 case 2 -> d.getSpecialization();
                 case 3 -> d.getDepartmentName() != null ? d.getDepartmentName() : "General";
-                case 4 -> "₹ " + d.getConsultationFee();
-                case 5 -> d.getExperienceYears() + " yrs";
-                case 6 -> d.getAvailableDays();
-                case 7 -> d.getPhone();
-                case 8 -> d.isAvailable() ? "Active" : "Inactive";
+                case 4 -> {
+                    long count = checkupCounts.getOrDefault(d.getDoctorId(), 0L);
+                    yield count > 0 ? "👥 " + count + " Queued" : "0 Patients";
+                }
+                case 5 -> "₹ " + d.getConsultationFee();
+                case 6 -> d.getExperienceYears() + " yrs";
+                case 7 -> d.getAvailableDays();
+                case 8 -> d.getPhone();
+                case 9 -> d.isAvailable() ? "Active" : "Inactive";
                 default -> "";
             };
         }
