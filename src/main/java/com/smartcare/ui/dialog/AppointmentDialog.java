@@ -211,18 +211,29 @@ public class AppointmentDialog extends JDialog {
             appt.setDoctorId(selectedDoctor.id);
             appt.setAppointmentDate(date);
             appt.setAppointmentTime(time);
-            appt.setReasonForVisit(reasonField.getText().trim());
-            appt.setNotes(notesArea.getText().trim());
+            String userNotes = notesArea.getText().trim();
+            if (existingAppointment == null) {
+                if (!userNotes.contains("Token:")) {
+                    String token = "SC-" + date.getYear() + "-" + String.format("%04d", (int)(System.currentTimeMillis() % 9000 + 1000));
+                    appt.setNotes("Token: " + token + (userNotes.isEmpty() ? "" : " | " + userNotes));
+                } else {
+                    appt.setNotes(userNotes);
+                }
+            } else {
+                appt.setNotes(userNotes);
+            }
+
             if (existingAppointment != null)
                 appt.setStatus((AppointmentStatus) statusCombo.getSelectedItem());
 
             if (existingAppointment == null) {
-                controller.scheduleAppointment(appt);
-                JOptionPane.showMessageDialog(this, "✅  Appointment scheduled successfully!",
+                Appointment created = controller.scheduleAppointment(appt);
+                String tokenDisplay = created != null ? created.getTokenNumber() : appt.getTokenNumber();
+                JOptionPane.showMessageDialog(this, "✅  Appointment scheduled successfully!\n\nTicket / Token #: " + tokenDisplay,
                         "Scheduled", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 controller.updateAppointment(appt);
-                JOptionPane.showMessageDialog(this, "✅  Appointment updated successfully!",
+                JOptionPane.showMessageDialog(this, "✅  Appointment updated successfully!\n\nTicket / Token #: " + appt.getTokenNumber(),
                         "Updated", JOptionPane.INFORMATION_MESSAGE);
             }
             saved = true;
