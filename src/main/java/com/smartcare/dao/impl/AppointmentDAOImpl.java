@@ -19,8 +19,8 @@ public class AppointmentDAOImpl implements AppointmentDAO {
     private static final Logger LOGGER = Logger.getLogger(AppointmentDAOImpl.class.getName());
 
     private static final String BASE_QUERY =
-            "SELECT a.*, p.full_name AS patient_name, p.patient_code AS patient_code, " +
-            "d.full_name AS doctor_name, d.specialization AS doctor_specialization " +
+            "SELECT a.*, p.full_name AS patient_name, p.patient_code AS patient_code, p.phone AS patient_phone, " +
+            "d.full_name AS doctor_name, d.specialization AS doctor_specialization, d.consultation_fee AS doctor_fee " +
             "FROM appointments a " +
             "JOIN patients p ON a.patient_id = p.patient_id " +
             "JOIN doctors d ON a.doctor_id = d.doctor_id ";
@@ -280,9 +280,11 @@ public class AppointmentDAOImpl implements AppointmentDAO {
         a.setPatientId(rs.getInt("patient_id"));
         a.setPatientName(rs.getString("patient_name"));
         a.setPatientCode(rs.getString("patient_code"));
+        try { a.setPatientPhone(rs.getString("patient_phone")); } catch (Exception ignored) {}
         a.setDoctorId(rs.getInt("doctor_id"));
         a.setDoctorName(rs.getString("doctor_name"));
         a.setDoctorSpecialization(rs.getString("doctor_specialization"));
+        try { a.setDoctorFee(rs.getDouble("doctor_fee")); } catch (Exception ignored) {}
 
         Date date = rs.getDate("appointment_date");
         if (date != null) a.setAppointmentDate(date.toLocalDate());
