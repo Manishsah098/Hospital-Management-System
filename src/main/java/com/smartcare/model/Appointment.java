@@ -21,12 +21,28 @@ public class Appointment {
     private LocalTime appointmentTime;
     private AppointmentStatus status;
     private String reasonForVisit;
+    private String patientPhone;
+    private Double doctorFee;
     private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public Appointment() {
         this.status = AppointmentStatus.SCHEDULED;
+    }
+
+    public String getTokenNumber() {
+        if (notes != null && notes.contains("Token:")) {
+            try {
+                String[] parts = notes.split("Token:");
+                if (parts.length > 1) {
+                    String token = parts[1].split("[|,\n]")[0].trim();
+                    if (!token.isEmpty()) return token;
+                }
+            } catch (Exception ignored) {}
+        }
+        int year = appointmentDate != null ? appointmentDate.getYear() : 2026;
+        return String.format("SC-%04d-%04d", year, appointmentId > 0 ? appointmentId : 1);
     }
 
     public Appointment(int appointmentId, int patientId, int doctorId, LocalDate appointmentDate,
@@ -134,6 +150,22 @@ public class Appointment {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getPatientPhone() {
+        return patientPhone;
+    }
+
+    public void setPatientPhone(String patientPhone) {
+        this.patientPhone = patientPhone;
+    }
+
+    public Double getDoctorFee() {
+        return doctorFee;
+    }
+
+    public void setDoctorFee(Double doctorFee) {
+        this.doctorFee = doctorFee;
     }
 
     public LocalDateTime getCreatedAt() {
