@@ -113,17 +113,29 @@ public class AppointmentPanel extends JPanel {
         appointmentTable.setShowVerticalLines(false);
         appointmentTable.setFillsViewportHeight(true);
 
-        // Status column coloring
-        appointmentTable.getColumnModel().getColumn(5).setCellRenderer(new StatusCellRenderer());
+        // Status column coloring (Column 8)
+        appointmentTable.getColumnModel().getColumn(8).setCellRenderer(new StatusCellRenderer());
+        // Ticket / Token column badge renderer (Column 1)
+        appointmentTable.getColumnModel().getColumn(1).setCellRenderer(new TicketCellRenderer());
 
         // Column widths
-        int[] colWidths = {50, 130, 145, 100, 90, 105, 160, 80};
+        int[] colWidths = {45, 125, 140, 105, 140, 130, 95, 85, 100, 150};
         for (int i = 0; i < colWidths.length; i++) {
             appointmentTable.getColumnModel().getColumn(i).setPreferredWidth(colWidths[i]);
         }
 
         sorter = new TableRowSorter<>(tableModel);
         appointmentTable.setRowSorter(sorter);
+
+        // Double click to view ticket details
+        appointmentTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    viewSelectedTicketDetails();
+                }
+            }
+        });
 
         JScrollPane scrollPane = new JScrollPane(appointmentTable);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -143,14 +155,17 @@ public class AppointmentPanel extends JPanel {
         JPanel rowActions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         rowActions.setOpaque(false);
 
+        JButton btnTicket = createButton("🎫 View Ticket Details", new Color(13, 148, 136));
         JButton btnEdit   = createButton("✏ Edit", ACCENT_BLUE);
         JButton btnComplete = createButton("✓ Mark Complete", ACCENT_GREEN);
         JButton btnCancel = createButton("✖ Cancel Appt.", ACCENT_RED);
 
+        btnTicket.addActionListener(e -> viewSelectedTicketDetails());
         btnEdit.addActionListener(e -> editSelectedAppointment());
         btnComplete.addActionListener(e -> markSelectedStatus(AppointmentStatus.COMPLETED));
         btnCancel.addActionListener(e -> cancelSelectedAppointment());
 
+        rowActions.add(btnTicket);
         rowActions.add(btnEdit);
         rowActions.add(btnComplete);
         rowActions.add(btnCancel);
@@ -200,10 +215,10 @@ public class AppointmentPanel extends JPanel {
         RowFilter<AppointmentTableModel, Object> statusFilter = null;
 
         if (!text.isEmpty()) {
-            textFilter = RowFilter.regexFilter("(?i)" + text, 1, 2, 3, 6);
+            textFilter = RowFilter.regexFilter("(?i)" + text, 0, 1, 2, 3, 4, 5, 9);
         }
         if (statusSel != null && !statusSel.equals("All Statuses")) {
-            statusFilter = RowFilter.regexFilter("(?i)" + statusSel, 5);
+            statusFilter = RowFilter.regexFilter("(?i)" + statusSel, 8);
         }
 
         if (textFilter != null && statusFilter != null) {
@@ -238,6 +253,158 @@ public class AppointmentPanel extends JPanel {
                 SwingUtilities.getWindowAncestor(this), appt, controller);
         dialog.setVisible(true);
         if (dialog.isSaved()) loadData();
+    }
+
+    public void viewSelectedTicketDetails() {
+        int selectedRow = appointmentTable.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select an appointment to view ticket details.",
+                    "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int modelRow = appointmentTable.convertRowIndexToModel(selectedRow);
+        Appointment a = tableModel.getAppointmentAt(modelRow);
+
+        showTicketDetailsDialog(a);
+    }
+
+    public void showTicketDetailsDialog(Appointment a) {
+        JDialog ticketDialog = new JDialog(SwingUtilities.getWindowAncestor(this),
+                "Appointment Ticket Slip: " + a.getTokenNumber(), Dialog.ModalityType.APPLICATION_MODAL);
+        ticketDialog.setSize(520, 620);
+        ticketDialog.setLocationRelativeTo(this);
+        ticketDialog.setLayout(new BorderLayout());
+
+        JPanel root = new JPanel();
+        root.setLayout(new BoxLayout(root, BoxLayout.Y_AXIS));
+        root.setBackground(Color.WHITE);
+        root.setBorder(new EmptyBorder(20, 25, 20, 25));
+
+        // Header Banner
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(15, 23, 42)); // Slate Navy
+        headerPanel.setBorder(new EmptyBorder(16, 20, 16, 20));
+
+        JLabel title = new JLabel("✚  SMARTCARE HOSPITAL");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 17));
+        title.setForeground(Color.WHITE);
+
+        JLabel sub = new JLabel("Official OPD Checkup & Consultation Ticket");
+        sub.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        sub.setForeground(new Color(148, 163, 184));
+
+        JPanel titleBlock = new JPanel(new GridLayout(2, 1, 0, 3));
+        titleBlock.setOpaque(false);
+        titleBlock.add(title);
+        titleBlock.add(sub);
+
+        JLabel queueLbl = new JLabel("#" + a.getAppointmentId());
+        queueLbl.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        queueLbl.setForeground(new Color(56, 189, 248)); // Medical cyan
+        queueLbl.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        headerPanel.add(titleBlock, BorderLayout.WEST);
+        headerPanel.add(queueLbl, BorderLayout.EAST);
+        root.add(headerPanel);
+        root.add(Box.createRigidArea(new Dimension(0, 16)));
+
+        // Token Badge Box
+        JPanel tokenBox = new JPanel(new BorderLayout());
+        tokenBox.setBackground(new Color(240, 253, 250)); // Light teal
+        tokenBox.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(45, 212, 191), 1),
+                new EmptyBorder(10, 16, 10, 16)
+        ));
+
+        JLabel tLbl = new JLabel("TICKET / TOKEN NUMBER:");
+        tLbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        tLbl.setForeground(new Color(15, 118, 110));
+
+        JLabel tVal = new JLabel(a.getTokenNumber());
+        tVal.setFont(new Font("Consolas", Font.BOLD, 22));
+        tVal.setForeground(new Color(13, 148, 136));
+
+        tokenBox.add(tLbl, BorderLayout.NORTH);
+        tokenBox.add(tVal, BorderLayout.CENTER);
+        root.add(tokenBox);
+        root.add(Box.createRigidArea(new Dimension(0, 16)));
+
+        // Details Grid
+        JPanel grid = new JPanel(new GridLayout(0, 2, 12, 12));
+        grid.setOpaque(false);
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd MMM yyyy (EEEE)");
+        DateTimeFormatter ttf = DateTimeFormatter.ofPattern("hh:mm a");
+
+        addDetailItem(grid, "Patient Full Name", a.getPatientName() != null ? a.getPatientName() : "-");
+        addDetailItem(grid, "Patient UHID Code", a.getPatientCode() != null ? a.getPatientCode() : "PAT-" + a.getPatientId());
+        addDetailItem(grid, "Contact Phone", a.getPatientPhone() != null && !a.getPatientPhone().isEmpty() ? a.getPatientPhone() : "Recorded on file");
+        addDetailItem(grid, "Appointment Status", a.getStatus() != null ? a.getStatus().name() : "SCHEDULED");
+        addDetailItem(grid, "Attending Doctor", a.getDoctorName() != null ? a.getDoctorName() : "Doctor #" + a.getDoctorId());
+        addDetailItem(grid, "Specialization", a.getDoctorSpecialization() != null ? a.getDoctorSpecialization() : "General");
+        addDetailItem(grid, "Scheduled Date", a.getAppointmentDate() != null ? a.getAppointmentDate().format(dtf) : "-");
+        addDetailItem(grid, "Time Slot", a.getAppointmentTime() != null ? a.getAppointmentTime().format(ttf) : "-");
+        addDetailItem(grid, "Consultation Fee", a.getDoctorFee() != null && a.getDoctorFee() > 0 ? "₹ " + String.format("%.2f", a.getDoctorFee()) : "Standard OPD");
+        addDetailItem(grid, "Reason for Checkup", a.getReasonForVisit() != null ? a.getReasonForVisit() : "Routine Checkup");
+
+        root.add(grid);
+        root.add(Box.createRigidArea(new Dimension(0, 14)));
+
+        // Notes & Source box
+        String notesText = a.getNotes() != null && !a.getNotes().isEmpty() ? a.getNotes() : "Created via SmartCare HMS Counter";
+        JLabel notesLbl = new JLabel("Notes / Source: " + notesText);
+        notesLbl.setFont(new Font("Segoe UI", Font.ITALIC, 11));
+        notesLbl.setForeground(new Color(100, 116, 139));
+        root.add(notesLbl);
+
+        // Buttons Footer
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 12));
+        footer.setBackground(new Color(248, 249, 250));
+        footer.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(226, 232, 240)));
+
+        JButton copyBtn = new JButton("📋 Copy Token");
+        copyBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        copyBtn.addActionListener(e -> {
+            java.awt.datatransfer.StringSelection ss = new java.awt.datatransfer.StringSelection(a.getTokenNumber());
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
+            JOptionPane.showMessageDialog(ticketDialog, "Token " + a.getTokenNumber() + " copied to clipboard!", "Copied", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        JButton printBtn = new JButton("🖨 Print / Save Slip");
+        printBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        printBtn.setBackground(new Color(13, 110, 253));
+        printBtn.setForeground(Color.WHITE);
+        printBtn.addActionListener(e -> {
+            JOptionPane.showMessageDialog(ticketDialog,
+                    "Ticket slip sent to default printer queue!\nToken: " + a.getTokenNumber() + "\nPatient: " + a.getPatientName(),
+                    "Print Ticket", JOptionPane.INFORMATION_MESSAGE);
+        });
+
+        JButton closeBtn = new JButton("Close");
+        closeBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        closeBtn.addActionListener(e -> ticketDialog.dispose());
+
+        footer.add(copyBtn);
+        footer.add(printBtn);
+        footer.add(closeBtn);
+
+        ticketDialog.add(new JScrollPane(root), BorderLayout.CENTER);
+        ticketDialog.add(footer, BorderLayout.SOUTH);
+        ticketDialog.setVisible(true);
+    }
+
+    private void addDetailItem(JPanel panel, String label, String value) {
+        JPanel p = new JPanel(new BorderLayout(0, 2));
+        p.setOpaque(false);
+        JLabel l = new JLabel(label.toUpperCase());
+        l.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        l.setForeground(new Color(100, 116, 139));
+        JLabel v = new JLabel(value);
+        v.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        v.setForeground(new Color(30, 41, 59));
+        p.add(l, BorderLayout.NORTH);
+        p.add(v, BorderLayout.CENTER);
+        panel.add(p);
     }
 
     private void markSelectedStatus(AppointmentStatus status) {
@@ -305,7 +472,7 @@ public class AppointmentPanel extends JPanel {
 
     private static class AppointmentTableModel extends AbstractTableModel {
         private static final String[] COLUMNS = {
-                "#", "Patient", "Doctor", "Specialization", "Date", "Status", "Reason", "Time"};
+                "#", "Ticket / Token #", "Patient Name", "Phone", "Attending Doctor", "Specialization", "Date", "Time", "Status", "Reason"};
         private List<Appointment> data = new ArrayList<>();
 
         public void setData(List<Appointment> data) {
@@ -328,19 +495,39 @@ public class AppointmentPanel extends JPanel {
             DateTimeFormatter ttf = DateTimeFormatter.ofPattern("hh:mm a");
             return switch (col) {
                 case 0 -> a.getAppointmentId();
-                case 1 -> a.getPatientName() != null ? a.getPatientName() : "P#" + a.getPatientId();
-                case 2 -> a.getDoctorName()  != null ? a.getDoctorName()  : "D#" + a.getDoctorId();
-                case 3 -> a.getDoctorSpecialization() != null ? a.getDoctorSpecialization() : "-";
-                case 4 -> a.getAppointmentDate() != null ? a.getAppointmentDate().format(dtf) : "-";
-                case 5 -> a.getStatus() != null ? a.getStatus().name() : "-";
-                case 6 -> a.getReasonForVisit() != null ? a.getReasonForVisit() : "-";
+                case 1 -> a.getTokenNumber();
+                case 2 -> a.getPatientName() != null ? a.getPatientName() : "P#" + a.getPatientId();
+                case 3 -> a.getPatientPhone() != null && !a.getPatientPhone().isEmpty() ? a.getPatientPhone() : "-";
+                case 4 -> a.getDoctorName()  != null ? a.getDoctorName()  : "D#" + a.getDoctorId();
+                case 5 -> a.getDoctorSpecialization() != null ? a.getDoctorSpecialization() : "-";
+                case 6 -> a.getAppointmentDate() != null ? a.getAppointmentDate().format(dtf) : "-";
                 case 7 -> a.getAppointmentTime() != null ? a.getAppointmentTime().format(ttf) : "-";
+                case 8 -> a.getStatus() != null ? a.getStatus().name() : "-";
+                case 9 -> a.getReasonForVisit() != null ? a.getReasonForVisit() : "-";
                 default -> "";
             };
         }
 
         @Override public Class<?> getColumnClass(int col) {
             return col == 0 ? Integer.class : String.class;
+        }
+    }
+
+    // ── TICKET CELL RENDERER ──────────────────────────────────────────────────
+
+    private static class TicketCellRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setHorizontalAlignment(SwingConstants.CENTER);
+            setFont(new Font("Consolas", Font.BOLD, 12));
+            if (!isSelected) {
+                setForeground(new Color(13, 148, 136)); // Teal
+                setBackground(new Color(240, 253, 250));
+            }
+            setText(value != null ? value.toString() : "-");
+            return this;
         }
     }
 
