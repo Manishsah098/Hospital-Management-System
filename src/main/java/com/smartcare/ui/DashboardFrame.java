@@ -189,14 +189,16 @@ public class DashboardFrame extends JFrame {
         addNavButton(sidebar, "☤  Dashboard Overview", "WELCOME",
                 () -> showCard("WELCOME", "Hospital Operations Command Center"));
 
-        if (role == UserRole.ADMIN || role == UserRole.RECEPTIONIST) {
+        if (role == UserRole.ADMIN || role == UserRole.RECEPTIONIST || role == UserRole.DOCTOR) {
             addSectionLabel(sidebar, "PATIENT SERVICES");
             addNavButton(sidebar, "✚  Patient Directory", "PATIENTS",
                     () -> showCard("PATIENTS", "Patient Directory & Admissions"));
             addNavButton(sidebar, "◷  Appointments & Queue", "APPOINTMENTS",
                     () -> showCard("APPOINTMENTS", "Appointment Management"));
-            addNavButton(sidebar, "💳  Billing & Invoices", "BILLING",
-                    () -> showCard("BILLING", "Billing & Invoices"));
+            if (role != UserRole.DOCTOR) {
+                addNavButton(sidebar, "💳  Billing & Invoices", "BILLING",
+                        () -> showCard("BILLING", "Billing & Invoices"));
+            }
         }
 
         if (role == UserRole.ADMIN || role == UserRole.DOCTOR) {
@@ -509,7 +511,7 @@ public class DashboardFrame extends JFrame {
         queueHeader.add(viewAllBtn, BorderLayout.EAST);
 
         // Queue Table
-        String[] cols = {"Time", "Patient Name", "Doctor / Specialist", "Department", "Status"};
+        String[] cols = {"Ticket #", "Time", "Patient Name", "Doctor / Specialist", "Department", "Status"};
         queueTableModel = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -525,8 +527,20 @@ public class DashboardFrame extends JFrame {
         queueTable.setShowVerticalLines(false);
         queueTable.setGridColor(new Color(241, 245, 249));
 
-        // Custom status column renderer
-        queueTable.getColumnModel().getColumn(4).setCellRenderer(new DefaultTableCellRenderer() {
+        // Ticket column renderer
+        queueTable.getColumnModel().getColumn(0).setCellRenderer(new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(SwingConstants.CENTER);
+                setFont(new Font("Consolas", Font.BOLD, 11));
+                if (!isSelected) setForeground(new Color(13, 148, 136));
+                return this;
+            }
+        });
+
+        // Custom status column renderer (Column 5)
+        queueTable.getColumnModel().getColumn(5).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 JLabel lbl = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
@@ -782,23 +796,24 @@ public class DashboardFrame extends JFrame {
                     List<Appointment> list = dao.findAll();
                     for (Appointment a : list) {
                         if (rows.size() >= 5) break;
+                        String token = a.getTokenNumber();
                         String time = a.getAppointmentTime() != null ? a.getAppointmentTime().toString() : "09:30 AM";
                         String patient = a.getPatientName() != null ? a.getPatientName() : "Patient #" + a.getPatientId();
                         String doctor = a.getDoctorName() != null ? a.getDoctorName() : "Doctor #" + a.getDoctorId();
                         String dept = a.getDoctorSpecialization() != null ? a.getDoctorSpecialization() : "General Medicine";
                         String status = a.getStatus() != null ? a.getStatus().name() : "CONFIRMED";
-                        rows.add(new String[]{time, patient, doctor, dept, status});
+                        rows.add(new String[]{token, time, patient, doctor, dept, status});
                     }
                 } catch (Exception ignored) {
                 }
 
                 // If no database records found yet, populate with realistic live triage demo rows
                 if (rows.isEmpty()) {
-                    rows.add(new String[]{"09:00 AM", "Johnathan Davis (PT-1001)", "Dr. Sarah Jenkins", "Cardiology", "IN_PROGRESS"});
-                    rows.add(new String[]{"09:30 AM", "Eleanor Vance (PT-1002)", "Dr. Robert Vance", "Neurology", "CONFIRMED"});
-                    rows.add(new String[]{"10:15 AM", "Marcus Chen (PT-1003)", "Dr. Emily Taylor", "Orthopedics", "WAITING"});
-                    rows.add(new String[]{"11:00 AM", "Amina Al-Mansoor (PT-1004)", "Dr. David Kumar", "Pediatrics", "SCHEDULED"});
-                    rows.add(new String[]{"11:45 AM", "Carlos Rodriguez (PT-1005)", "Dr. Lisa Wong", "General Surgery", "CONFIRMED"});
+                    rows.add(new String[]{"SC-2026-0001", "09:00 AM", "Johnathan Davis (PT-1001)", "Dr. Sarah Jenkins", "Cardiology", "IN_PROGRESS"});
+                    rows.add(new String[]{"SC-2026-0002", "09:30 AM", "Eleanor Vance (PT-1002)", "Dr. Robert Vance", "Neurology", "CONFIRMED"});
+                    rows.add(new String[]{"SC-2026-0003", "10:15 AM", "Marcus Chen (PT-1003)", "Dr. Emily Taylor", "Orthopedics", "WAITING"});
+                    rows.add(new String[]{"SC-2026-0004", "11:00 AM", "Amina Al-Mansoor (PT-1004)", "Dr. David Kumar", "Pediatrics", "SCHEDULED"});
+                    rows.add(new String[]{"SC-2026-0005", "11:45 AM", "Carlos Rodriguez (PT-1005)", "Dr. Lisa Wong", "General Surgery", "CONFIRMED"});
                 }
                 return rows;
             }
