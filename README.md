@@ -274,7 +274,7 @@ This project satisfies all requirements for **B.Tech Computer Science & Engineer
 
 ## 👨‍💻 Author
 
-**Manish Sah**  
+**Manish Kumar Sah**  
 - GitHub: [@Manishsah098](https://github.com/Manishsah098)
 - Project Repository: [Hospital-Management-System](https://github.com/Manishsah098/Hospital-Management-System)
 
