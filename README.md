@@ -280,4 +280,4 @@ This project satisfies all requirements for **B.Tech Computer Science & Engineer
 
 ---
 
-⭐ *If you find this project useful, please consider giving the repository a star on GitHub!*
+⭐ *If you find this project useful, please consider me giving the repository a star on GitHub!*
