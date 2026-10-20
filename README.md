@@ -263,7 +263,7 @@ Hospital-Management-System/
 
 ## 📜 Academic / PBL Compliance
 
-This project satisfies all requirements for **B.Tech Computer Science & Engineering Project-Based Learning (PBL)*:
+This project satisfies all requirements for **B.Tech Computer Science & Engineering Project-Based Learning (PBL) report*:
 - **Core Java & OOP**: Encapsulation, Inheritance, Polymorphism, Abstraction, Design Patterns (Singleton, Factory, DAO).
 - **Relational DBMS**: 3NF Normalized Schema, Foreign Keys, Indexes, ACID Transactions.
 - **Multithreading**: `SwingWorker` asynchronous threads for non-blocking UI during database and AI calls.
