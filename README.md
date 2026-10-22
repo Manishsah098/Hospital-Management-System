@@ -268,7 +268,7 @@ This project satisfies all requirements for **B.Tech Computer Science & Engineer
 - **Relational DBMS**: 3NF Normalized Schema, Foreign Keys, Indexes, ACID Transactions.
 - **Multithreading**: `SwingWorker` asynchronous threads for non-blocking UI during database and AI calls.
 - **Exception Handling**: Hierarchical custom exception architecture (`DatabaseException`, `ValidationException`, `AuthenticationException`).
-- **Modern AI Integration**: RESTful API integration using `java.net.http.HttpClient` with Google Gemini.
+- **Modern AI Integration**: RESTful API integration using `java.net.http.HttpClient` with Google Gemini integration.
 
 ---
 
