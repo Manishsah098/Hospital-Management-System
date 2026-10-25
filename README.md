@@ -261,7 +261,7 @@ Hospital-Management-System/
 
 ---
 
-## 📜 Academic / PBL Compliance report
+## 📜 Academic / PBL Compliance
 
 
 This project satisfies all requirements for **B.Tech Computer Science & Engineering Project-Based Learning (PBL) report*:
